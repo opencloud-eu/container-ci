@@ -1,9 +1,8 @@
 ---
 variables:
-  - &sign_image registry.heinlein.group/opencloud/notation:latest
-  - &notation_conf "ewogICAgImRlZmF1bHQiOiAicmVnaXN0cnkiLAogICAgImtleXMiOiBbCiAgICAgICAgewogICAgICAgICAgICAibmFtZSI6ICJvYy1jaSIsCiAgICAgICAgICAgICJrZXlQYXRoIjogIi9yb290Ly5jb25maWcvbm90YXRpb24vbG9jYWxrZXlzL29jLWNpLmtleSIsCiAgICAgICAgICAgICJjZXJ0UGF0aCI6ICIvcm9vdC8uY29uZmlnL25vdGF0aW9uL2xvY2Fsa2V5cy9vYy1jaS5jcnQiCiAgICAgICAgfQogICAgXQp9Cg=="
+  - &sign_image registry.heinlein.group/opencloud/notation-wp-plugin:latest
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
-  - &publish_repos "opencloudeu/notation,quay.io/opencloudeu/notation,registry.heinlein.group/opencloud/notation"
+  - &publish_repos "opencloudeu/notation-wp-plugin,quay.io/opencloudeu/notation-wp-plugin,registry.heinlein.group/opencloud/notation-wp-plugin"
   - &publish_platforms 'linux/arm64,linux/amd64'
   - publish_logins: &publish_logins
     - registry: https://index.docker.io/v1/
@@ -25,7 +24,7 @@ variables:
 when:
   - branch: ${CI_REPO_DEFAULT_BRANCH}
     path:
-      - notation/**
+      - notation-wp-plugin/**
     event:
       - push
   - branch: ${CI_REPO_DEFAULT_BRANCH}
@@ -34,23 +33,21 @@ when:
       - cron
   - event: pull_request
     path:
-      - notation/**
-  - event:
-      - push
+      - notation-wp-plugin/**
 
 steps:
   - name: dryrun
     image: *buildx_plugin
     settings:
-      context: ./notation
-      dockerfile: notation/Dockerfile
+      context: ./notation-wp-plugin
+      dockerfile: notation-wp-plugin/Dockerfile
       dry_run: true
       http_proxy:
         from_secret: ci_http_proxy
       https_proxy:
         from_secret: ci_http_proxy
       platforms: *publish_platforms
-      pull_image: false
+      pull_image: true
       repo: *publish_repos
       tag: pr-${CI_COMMIT_PULL_REQUEST}
     when:
@@ -60,20 +57,20 @@ steps:
     image: *buildx_plugin
     settings:
       auto_tag: true
-      context: ./notation
+      context: ./notation-wp-plugin
       default_tag: commit-${CI_COMMIT_SHA}
-      dockerfile: notation/Dockerfile
+      dockerfile: notation-wp-plugin/Dockerfile
       http_proxy:
         from_secret: ci_http_proxy
       https_proxy:
         from_secret: ci_http_proxy
       logins: *publish_logins
       platforms: *publish_platforms
-      pull_image: false
       repo: *publish_repos
       tag: latest
     when:
-      - event:
+      - branch: ${CI_REPO_DEFAULT_BRANCH}
+        event:
           - cron
           - push
           - manual
@@ -81,22 +78,20 @@ steps:
 
   - name: sign
     image: *sign_image
-    environment:
-      NOTATION_KEY:
+    pull: true
+    settings:
+      key:
         from_secret: notation_key
-      NOTATION_CERT:
+      crt:
         from_secret: notation_cert
-      NOTATION_CONF: *notation_conf
-    commands:
-      - echo "$$NOTATION_CONF" | base64 -d > /root/.config/notation/signingkeys.json
-      - echo "$$NOTATION_KEY" | base64 -d > /root/.config/notation/localkeys/oc-ci.key
-      - echo "$$NOTATION_CERT" | base64 -d > /root/.config/notation/localkeys/oc-ci.crt
-      - notation key list
-      - notation cert list
-    #default_tag: commit-${CI_COMMIT_SHA}
-    #tag: latest
+      logins: *publish_logins
+      target: registry.heinlein.group/opencloud/notation-wp-plugin:commit-${CI_COMMIT_SHA}
+      additional:
+        - docker.io/opencloudeu/notation-wp-plugin
+        - quay.io/opencloudeu/notation-wp-plugin
     when:
-      - event:
+      - branch: ${CI_REPO_DEFAULT_BRANCH}
+        event:
           - cron
           - push
           - manual

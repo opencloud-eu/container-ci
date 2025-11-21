@@ -1,0 +1,10 @@
+{
+    "default": "oc-ci",
+    "keys": [
+        {
+            "name": "oc-ci",
+            "keyPath": "/root/.config/notation/localkeys/oc-ci.key",
+            "certPath": "/root/.config/notation/localkeys/oc-ci.crt"
+        }
+    ]
+}

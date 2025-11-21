@@ -13,7 +13,6 @@ RUN git clone https://github.com/notaryproject/notation.git \
     && make build \
     && mv bin/notation /notation
 
-
 # FROM alpine/curl:latest AS build
 
 # ARG NOTATION_VERSION=1.3.2
@@ -27,6 +26,12 @@ RUN git clone https://github.com/notaryproject/notation.git \
 FROM alpine:latest
 
 COPY --from=build /notation /bin/notation
-RUN mkdir -p /root/.config/notation/localkeys
+COPY ./plugin.sh /plugin.sh
+COPY ./signingkeys.json /root/.config/notation/signingkeys.json
 
-CMD [ "/bin/notation" ]
+RUN apk add jq oras-cli \
+    && mkdir -p /root/.config/notation/localkeys \
+    && mkdir -p /root/.docker \
+    && chmod +x /plugin.sh
+
+ENTRYPOINT ["/plugin.sh"]
