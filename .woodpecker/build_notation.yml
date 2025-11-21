@@ -1,5 +1,7 @@
 ---
 variables:
+  - &sign_image registry.heinlein.group/opencloud/notation:latest
+  - &notation_conf "ewogICAgImRlZmF1bHQiOiAicmVnaXN0cnkiLAogICAgImtleXMiOiBbCiAgICAgICAgewogICAgICAgICAgICAibmFtZSI6ICJvYy1jaSIsCiAgICAgICAgICAgICJrZXlQYXRoIjogIi9yb290Ly5jb25maWcvbm90YXRpb24vbG9jYWxrZXlzL29jLWNpLmtleSIsCiAgICAgICAgICAgICJjZXJ0UGF0aCI6ICIvcm9vdC8uY29uZmlnL25vdGF0aW9uL2xvY2Fsa2V5cy9vYy1jaS5jcnQiCiAgICAgICAgfQogICAgXQp9Cg=="
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
   - &publish_repos "opencloudeu/notation,quay.io/opencloudeu/notation,registry.heinlein.group/opencloud/notation"
   - &publish_platforms 'linux/arm64,linux/amd64'
@@ -33,10 +35,12 @@ when:
   - event: pull_request
     path:
       - notation/**
+  - event:
+      - push
 
 steps:
-  - image: *buildx_plugin
-    name: dryrun
+  - name: dryrun
+    image: *buildx_plugin
     settings:
       context: ./notation
       dockerfile: notation/Dockerfile
@@ -52,8 +56,8 @@ steps:
     when:
       - event: pull_request
 
-  - image: *buildx_plugin
-    name: build-and-push
+  - name: build-and-push
+    image: *buildx_plugin
     settings:
       auto_tag: true
       context: ./notation
@@ -68,6 +72,29 @@ steps:
       pull_image: false
       repo: *publish_repos
       tag: latest
+    when:
+      - event:
+          - cron
+          - push
+          - manual
+      - event: tag
+
+  - name: sign
+    image: *sign_image
+    environment:
+      NOTATION_KEY:
+        from_secret: notation_key
+      NOTATION_CERT:
+        from_secret: notation_cert
+      NOTATION_CONF: *notation_conf
+    commands:
+      - echo "$$NOTATION_CONF" | base64 -d > /root/.config/notation/signingkeys.json
+      - echo "$$NOTATION_KEY" | base64 -d > /root/.config/notation/localkeys/oc-ci.key
+      - echo "$$NOTATION_CERT" | base64 -d > /root/.config/notation/localkeys/oc-ci.crt
+      - notation key list
+      - notation cert list
+    #default_tag: commit-${CI_COMMIT_SHA}
+    #tag: latest
     when:
       - event:
           - cron
