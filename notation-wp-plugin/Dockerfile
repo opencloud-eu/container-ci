@@ -25,6 +25,11 @@ RUN git clone https://github.com/notaryproject/notation.git \
 
 FROM alpine:latest
 
+LABEL maintainer="OpenCloud.eu Team <devops@opencloud.eu>" \
+      name="opencloudeu/notation-wp-plugin" \
+      vendor="OpenCloud GmbH" \
+      source="https://github.com/opencloud-eu/container-ci/tree/main/notation-wp-plugin"
+
 COPY --from=build /notation /bin/notation
 COPY ./plugin.sh /plugin.sh
 COPY ./signingkeys.json /root/.config/notation/signingkeys.json
