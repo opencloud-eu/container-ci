@@ -20,6 +20,9 @@ variables:
         from_secret: harbor_opencloud_user
       password:
         from_secret: harbor_opencloud_password
+  - readme_env: &readme_env
+      PUSHRM_FILE: notation-wp-plugin/docs.md
+      PUSHRM_SHORT: Woodpecker-CI plugin for Notation
 
 when:
   - branch: ${CI_REPO_DEFAULT_BRANCH}
@@ -96,3 +99,41 @@ steps:
           - push
           - manual
       - event: tag
+
+  - name: readme-docker
+    image: chko/docker-pushrm:1
+    environment:
+      <<: *readme_env
+      PUSHRM_TARGET: opencloudeu/notation-wp-plugin
+      DOCKER_PASS:
+        from_secret: docker_password
+      DOCKER_USER:
+        from_secret: docker_username
+    when: &readme_when
+      - branch: add_readme
+        event:
+          - push
+        path:
+          - notation-wp-plugin/docs.md
+
+  - name: readme-quay
+    image: chko/docker-pushrm:1
+    environment:
+      <<: *readme_env
+      PUSHRM_TARGET: quay.io/opencloudeu/notation-wp-plugin
+      PUSHRM_PROVIDER: quay
+      APIKEY__QUAY_IO:
+        from_secret: quay_apikey
+    when: *readme_when
+
+  - name: readme-harbor
+    image: chko/docker-pushrm:1
+    environment:
+      <<: *readme_env
+      PUSHRM_TARGET: registry.heinlein.group/opencloud/notation-wp-plugin
+      PUSHRM_PROVIDER: harbor2
+      DOCKER_PASS:
+        from_secret: harbor_opencloud_password
+      DOCKER_USER:
+        from_secret: harbor_opencloud_user
+    when: *readme_when
