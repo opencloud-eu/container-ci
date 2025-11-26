@@ -37,69 +37,68 @@ when:
   - event: pull_request
     path:
       - notation-wp-plugin/**
-  - event: push
 
 steps:
-  # - name: dryrun
-  #   image: *buildx_plugin
-  #   settings:
-  #     context: ./notation-wp-plugin
-  #     dockerfile: notation-wp-plugin/Dockerfile
-  #     dry_run: true
-  #     http_proxy:
-  #       from_secret: ci_http_proxy
-  #     https_proxy:
-  #       from_secret: ci_http_proxy
-  #     platforms: *publish_platforms
-  #     pull_image: true
-  #     repo: *publish_repos
-  #     tag: pr-${CI_COMMIT_PULL_REQUEST}
-  #   when:
-  #     - event: pull_request
+  - name: dryrun
+    image: *buildx_plugin
+    settings:
+      context: ./notation-wp-plugin
+      dockerfile: notation-wp-plugin/Dockerfile
+      dry_run: true
+      http_proxy:
+        from_secret: ci_http_proxy
+      https_proxy:
+        from_secret: ci_http_proxy
+      platforms: *publish_platforms
+      pull_image: true
+      repo: *publish_repos
+      tag: pr-${CI_COMMIT_PULL_REQUEST}
+    when:
+      - event: pull_request
 
-  # - name: build-and-push
-  #   image: *buildx_plugin
-  #   settings:
-  #     auto_tag: true
-  #     context: ./notation-wp-plugin
-  #     default_tag: commit-${CI_COMMIT_SHA}
-  #     dockerfile: notation-wp-plugin/Dockerfile
-  #     http_proxy:
-  #       from_secret: ci_http_proxy
-  #     https_proxy:
-  #       from_secret: ci_http_proxy
-  #     logins: *publish_logins
-  #     platforms: *publish_platforms
-  #     repo: *publish_repos
-  #     tag: latest
-  #   when:
-  #     - branch: ${CI_REPO_DEFAULT_BRANCH}
-  #       event:
-  #         - cron
-  #         - push
-  #         - manual
-  #     - event: tag
+  - name: build-and-push
+    image: *buildx_plugin
+    settings:
+      auto_tag: true
+      context: ./notation-wp-plugin
+      default_tag: commit-${CI_COMMIT_SHA}
+      dockerfile: notation-wp-plugin/Dockerfile
+      http_proxy:
+        from_secret: ci_http_proxy
+      https_proxy:
+        from_secret: ci_http_proxy
+      logins: *publish_logins
+      platforms: *publish_platforms
+      repo: *publish_repos
+      tag: latest
+    when:
+      - branch: ${CI_REPO_DEFAULT_BRANCH}
+        event:
+          - cron
+          - push
+          - manual
+      - event: tag
 
-  # - name: sign
-  #   image: *sign_image
-  #   pull: true
-  #   settings:
-  #     key:
-  #       from_secret: notation_key
-  #     crt:
-  #       from_secret: notation_cert
-  #     logins: *publish_logins
-  #     target: registry.heinlein.group/opencloud/notation-wp-plugin:commit-${CI_COMMIT_SHA}
-  #     additional:
-  #       - docker.io/opencloudeu/notation-wp-plugin
-  #       - quay.io/opencloudeu/notation-wp-plugin
-  #   when:
-  #     - branch: ${CI_REPO_DEFAULT_BRANCH}
-  #       event:
-  #         - cron
-  #         - push
-  #         - manual
-  #     - event: tag
+  - name: sign
+    image: *sign_image
+    pull: true
+    settings:
+      key:
+        from_secret: notation_key
+      crt:
+        from_secret: notation_cert
+      logins: *publish_logins
+      target: registry.heinlein.group/opencloud/notation-wp-plugin:commit-${CI_COMMIT_SHA}
+      additional:
+        - docker.io/opencloudeu/notation-wp-plugin
+        - quay.io/opencloudeu/notation-wp-plugin
+    when:
+      - branch: ${CI_REPO_DEFAULT_BRANCH}
+        event:
+          - cron
+          - push
+          - manual
+      - event: tag
 
   - name: readme-docker
     image: chko/docker-pushrm:1
@@ -114,8 +113,8 @@ steps:
       - branch: add_readme
         event:
           - push
-        # path:
-        #   - notation-wp-plugin/docs.md
+        path:
+          - notation-wp-plugin/docs.md
 
   - name: readme-quay
     image: chko/docker-pushrm:1

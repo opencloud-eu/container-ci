@@ -2,7 +2,7 @@
 name: notation
 icon: https://avatars.githubusercontent.com/u/32203186
 description: plugin to sign container images using https://notaryproject.dev/
-author: flimmy@opencloud.eu
+author: github.com/flimmy
 tags: [docker, image, container, notation, sign, signature]
 containerImage: opencloudeu/notation-wp-plugin
 containerImageUrl: https://hub.docker.com/r/opencloudeu/notation-wp-plugin
