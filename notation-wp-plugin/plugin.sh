@@ -12,7 +12,7 @@ jq 'map({(.registry): {auth: ( (.username + ":" + .password) | @base64 )} }) | a
 cp /root/.config/notation/config.json /root/.docker/config.json
 
 echo "getting digest for $PLUGIN_TARGET"
-export DIGEST=$(oras manifest fetch --descriptor registry.heinlein.group/opencloud/notation-wp-plugin:latest | jq -r '.digest')
+export DIGEST=$(oras manifest fetch --descriptor $PLUGIN_TARGET | jq -r '.digest')
 
 echo "begin signing"
 
