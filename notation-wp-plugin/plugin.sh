@@ -23,6 +23,11 @@ notation sign $primary@$DIGEST
 echo ${PLUGIN_ADDITIONAL} | tr ',' '\n' | while read target
 do
     set -e
+    # Trim whitespace and skip empty
+    target=$(echo "$target" | xargs)
+    if [ -z "$target" ]; then
+        continue
+    fi
     echo "##### start sign for $target@$DIGEST #####"
     notation sign $target@$DIGEST
 done
