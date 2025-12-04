@@ -14,6 +14,9 @@ RUN apk update && \
     apk add --no-cache \
         bash \
         curl \
+        git \
+        grep \
+        make \
         ca-certificates \
         build-base \
         attr \
