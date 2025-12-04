@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.25
+FROM docker.io/golang:1.25-alpine3.22
 
 LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.title="openCloud CI Go Image" \
@@ -10,19 +10,32 @@ LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
   org.opencontainers.image.version="1.25"
 
-
-RUN apt-get update && \
-    apt-get install -y \
-    libvips-dev \
-    libvips42 \
-    inotify-tools \
-    xattr \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk update && \
+    apk add --no-cache \
+        bash \
+        curl \
+        git \
+        grep \
+        make \
+        ca-certificates \
+        build-base \
+        attr \
+        inotify-tools \
+        vips \
+        vips-dev \
+        vips-tools \
+        glib \
+        expat \
+        librsvg \
+        libwebp \
+        libjpeg-turbo \
+        libpng \
+        giflib \
+        tiff \
+        ncurses
 
 WORKDIR /app
 
-RUN go version && \
-    vips --version
+RUN go version && vips --version
 
 CMD ["/bin/bash"]
