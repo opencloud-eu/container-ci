@@ -1,0 +1,37 @@
+FROM ubuntu:24.04
+
+LABEL maintainer="openCloud Team team@opencloud.eu" \
+  org.opencontainers.image.title="openCloud CI nodejs Image based on Ubuntu 24.04" \
+  org.opencontainers.image.vendor="openCloud GmbH" \
+  org.opencontainers.image.authors="openCloud GmbH" \
+  org.opencontainers.image.description="Custom nodejs image for CI with pnpm" \
+  org.opencontainers.image.documentation="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.version="24"
+
+# install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    jq \
+    git \
+    make \
+    ca-certificates \
+    gnupg \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    npm install -g pnpm@10.26.1 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# install playwright dependencies without browsers
+RUN npx -y playwright@1.57.0 install-deps
+
+RUN node --version && pnpm --version
+
+WORKDIR /app
+CMD ["/bin/bash"]
