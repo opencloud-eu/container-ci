@@ -1,0 +1,28 @@
+FROM node:24-alpine
+
+LABEL maintainer="openCloud Team team@opencloud.eu" \
+  org.opencontainers.image.title="openCloud CI nodejs Image" \
+  org.opencontainers.image.vendor="openCloud GmbH" \
+  org.opencontainers.image.authors="openCloud GmbH" \
+  org.opencontainers.image.description="Custom nodejs image for CI with pnpm" \
+  org.opencontainers.image.documentation="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.version="24"
+
+
+# 1. install dependencies
+RUN apk update && apk add --no-cache \
+    git \
+    make \
+    curl \
+    wget \
+    bash 
+
+# 2. install pnpm
+RUN npm install -g pnpm@10.26.1
+
+RUN echo "Node: $(node --version)" && echo "pnpm: $(pnpm --version)"
+
+WORKDIR /app
+CMD ["sh"]
