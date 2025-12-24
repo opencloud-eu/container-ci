@@ -1,0 +1,22 @@
+FROM docker.io/golang:1.25-alpine3.22 AS builder
+
+WORKDIR /app
+
+COPY go.mod main.go ./
+
+RUN go build -o wait-for .
+
+FROM alpine:3.22
+
+LABEL maintainer="openCloud Team team@opencloud.eu" \
+  org.opencontainers.image.description="Custom wait-for container" \
+  org.opencontainers.image.vendor="openCloud GmbH" \
+  org.opencontainers.image.authors="openCloud GmbH" \
+  org.opencontainers.image.title="openCloud CI wait-for" \
+  org.opencontainers.image.documentation="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci"
+
+COPY --from=builder /app/wait-for /usr/bin/wait-for
+
+ENTRYPOINT ["wait-for"]
