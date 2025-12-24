@@ -1,0 +1,47 @@
+FROM php:8.4.15-alpine3.22
+
+LABEL maintainer="openCloud Team team@opencloud.eu" \
+  org.opencontainers.image.title="openCloud CI PHP Image" \
+  org.opencontainers.image.vendor="openCloud GmbH" \
+  org.opencontainers.image.authors="openCloud GmbH" \
+  org.opencontainers.image.description="Custom PHP image for CI with Behat support" \
+  org.opencontainers.image.documentation="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.version="8.4"
+
+RUN apk add --no-cache \
+    git \
+    zip \
+    unzip \
+    curl \
+    bash \
+    make \
+    rsync \
+    ncurses
+
+RUN apk add --no-cache \
+    libzip \
+    openldap \
+    && apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    libzip-dev \
+    openldap-dev \
+    && docker-php-ext-install -j$(nproc) \
+        zip \
+        opcache \
+        ldap \
+    && apk del .build-deps
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN echo "error_reporting = E_ALL & ~E_DEPRECATED" \
+    > /usr/local/etc/php/conf.d/99-error-reporting.ini
+
+RUN git --version && \
+    composer --version && \
+    make --version
+
+WORKDIR /app
+
+CMD ["php", "-v"]
