@@ -40,7 +40,7 @@ steps:
   - name: dryrun
     image: *buildx_plugin
     settings:
-      context: ./php-8.4
+      context: ./php/v8.4
       dockerfile: php/v8.4/Dockerfile.multiarch
       dry_run: true
       http_proxy:
@@ -58,7 +58,7 @@ steps:
     image: *buildx_plugin
     settings:
       auto_tag: true
-      context: ./php-8.4
+      context: ./php/v8.4
       default_tag: commit-${CI_COMMIT_SHA}
       dockerfile: php/v8.4/Dockerfile.multiarch
       http_proxy:
