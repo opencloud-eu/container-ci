@@ -1,8 +1,7 @@
 ---
 variables:
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
-  - &golang_version '1.25'
-  - &publish_repos "opencloudeu/golang-ci,quay.io/opencloudeu/golang-ci"
+  - &publish_repos "opencloudeu/bazel-buildifier-ci,quay.io/opencloudeu/bazel-buildifier-ci"
   - &publish_platforms 'linux/arm64,linux/amd64'
   - publish_logins: &publish_logins
     - registry: https://index.docker.io/v1/
@@ -24,7 +23,7 @@ variables:
 when:
   - branch: ${CI_REPO_DEFAULT_BRANCH}
     path:
-      - golang/v1.25/**
+      - buildifier/**
     event:
       - push
   - branch: ${CI_REPO_DEFAULT_BRANCH}
@@ -33,15 +32,15 @@ when:
       - cron
   - event: pull_request
     path:
-      - golang/v1.25/**
+      - buildifier/**
   - event: push
 
 steps:
   - name: dryrun
     image: *buildx_plugin
     settings:
-      context: ./golang
-      dockerfile: golang/v1.25/Dockerfile.multiarch
+      context: ./buildifier
+      dockerfile: buildifier/Dockerfile.multiarch
       dry_run: true
       http_proxy:
         from_secret: ci_http_proxy
@@ -58,9 +57,9 @@ steps:
     image: *buildx_plugin
     settings:
       auto_tag: true
-      context: ./golang
+      context: ./buildifier
       default_tag: commit-${CI_COMMIT_SHA}
-      dockerfile: golang/v1.25/Dockerfile.multiarch
+      dockerfile: buildifier/Dockerfile.multiarch
       http_proxy:
         from_secret: ci_http_proxy
       https_proxy:
@@ -70,7 +69,6 @@ steps:
       repo: *publish_repos
       tags:
         - latest
-        - *golang_version
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
