@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     jq \
     git \
     make \
+    gettext \
     ca-certificates \
     gnupg \
     && mkdir -p /etc/apt/keyrings \
