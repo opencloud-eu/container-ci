@@ -58,5 +58,5 @@ steps:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
           - push
-      - path: buildifier/**
+        path: buildifier/**
       - event: tag

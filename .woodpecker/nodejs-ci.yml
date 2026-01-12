@@ -25,7 +25,7 @@ steps:
   - name: dryrun
     image: *buildx_plugin
     settings:
-      context: ./nodejs
+      context: ./nodejs/v24
       dockerfile: nodejs/v24/Dockerfile.multiarch
       dry_run: true
       http_proxy:
@@ -43,7 +43,7 @@ steps:
     image: *buildx_plugin
     settings:
       auto_tag: true
-      context: ./nodejs
+      context: ./nodejs/v24
       default_tag: commit-${CI_COMMIT_SHA}
       dockerfile: nodejs/v24/Dockerfile.multiarch
       http_proxy:
