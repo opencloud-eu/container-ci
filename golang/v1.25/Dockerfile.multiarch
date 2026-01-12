@@ -34,7 +34,8 @@ RUN apk update && \
         tiff \
         ncurses \
         mc \
-        jq
+        jq \
+        github-cli
 
 WORKDIR /app
 
