@@ -21,21 +21,6 @@ variables:
       password:
         from_secret: harbor_opencloud_password
 
-when:
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      - nodejs/v24-alpine/**
-    event:
-      - push
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    event:
-      - manual
-      - cron
-  - event: pull_request
-    path:
-      - nodejs/v24-alpine/**
-  - event: push
-
 steps:
   - name: dryrun
     image: *buildx_plugin
@@ -74,7 +59,6 @@ steps:
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
-          - cron
           - push
-          - manual
+        path: nodejs/v24-alpine/**
       - event: tag

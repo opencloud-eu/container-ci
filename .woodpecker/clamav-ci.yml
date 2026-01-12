@@ -33,7 +33,6 @@ when:
   - event: pull_request
     path:
       - clamav/**
-  - event: push
 
 steps:
   - name: dryrun
@@ -72,7 +71,6 @@ steps:
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
-          - cron
           - push
-          - manual
+        path: clamav/**
       - event: tag

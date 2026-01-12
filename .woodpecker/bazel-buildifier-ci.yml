@@ -20,21 +20,6 @@ variables:
       password:
         from_secret: harbor_opencloud_password
 
-when:
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      - buildifier/**
-    event:
-      - push
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    event:
-      - manual
-      - cron
-  - event: pull_request
-    path:
-      - buildifier/**
-  - event: push
-
 steps:
   - name: dryrun
     image: *buildx_plugin
@@ -72,7 +57,6 @@ steps:
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
-          - cron
           - push
-          - manual
+      - path: buildifier/**
       - event: tag
