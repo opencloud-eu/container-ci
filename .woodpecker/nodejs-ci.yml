@@ -20,6 +20,10 @@ variables:
         from_secret: harbor_opencloud_user
       password:
         from_secret: harbor_opencloud_password
+when:
+  - event: [push, manual, cron]
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: pull_request
 
 steps:
   - name: dryrun

@@ -21,18 +21,9 @@ variables:
         from_secret: harbor_opencloud_password
 
 when:
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      - clamav/**
-    event:
-      - push
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    event:
-      - manual
-      - cron
+  - event: [push, manual, cron]
+    branch: ${CI_REPO_DEFAULT_BRANCH}
   - event: pull_request
-    path:
-      - clamav/**
 
 steps:
   - name: dryrun
