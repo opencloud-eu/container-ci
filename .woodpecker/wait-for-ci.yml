@@ -40,6 +40,7 @@ steps:
     when:
       - branch: ci/check-push-event
         event: push
+        path: wait-for/*
 
   # - name: dryrun
   #   image: *buildx_plugin

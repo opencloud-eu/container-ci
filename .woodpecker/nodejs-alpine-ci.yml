@@ -41,6 +41,7 @@ steps:
     when:
       - branch: ci/check-push-event
         event: push
+        path: nodejs/v24-alpine/*
 
   # - name: dryrun
   #   image: *buildx_plugin
