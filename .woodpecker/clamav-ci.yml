@@ -4,28 +4,30 @@ variables:
   - &publish_repos 'opencloudeu/clamav-ci,quay.io/opencloudeu/clamav-ci'
   - &publish_platforms 'linux/arm64,linux/amd64'
   - publish_logins: &publish_logins
-    - registry: https://index.docker.io/v1/
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    - registry: https://quay.io
-      username:
-        from_secret: quay_username
-      password:
-        from_secret: quay_password
-    - registry: https://registry.heinlein.group
-      username:
-        from_secret: harbor_opencloud_user
-      password:
-        from_secret: harbor_opencloud_password
+      - registry: https://index.docker.io/v1/
+        username:
+          from_secret: docker_username
+        password:
+          from_secret: docker_password
+      - registry: https://quay.io
+        username:
+          from_secret: quay_username
+        password:
+          from_secret: quay_password
+      - registry: https://registry.heinlein.group
+        username:
+          from_secret: harbor_opencloud_user
+        password:
+          from_secret: harbor_opencloud_password
 
 when:
   - event: push
     branch: ${CI_REPO_DEFAULT_BRANCH}
-    path: 'clamav/**'
+    path:
+      - 'clamav/**'
+      - '.woodpecker/clamav-ci.yml'
   - event: pull_request
-  - event: [tag,manual,cron]
+  - event: [tag, manual, cron]
 
 steps:
   - name: dryrun

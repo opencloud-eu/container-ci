@@ -5,25 +5,27 @@ variables:
   - &publish_repos 'opencloudeu/nodejs-alpine-ci,quay.io/opencloudeu/nodejs-alpine-ci'
   - &publish_platforms 'linux/arm64,linux/amd64'
   - publish_logins: &publish_logins
-    - registry: https://index.docker.io/v1/
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    - registry: https://quay.io
-      username:
-        from_secret: quay_username
-      password:
-        from_secret: quay_password
-    - registry: https://registry.heinlein.group
-      username:
-        from_secret: harbor_opencloud_user
-      password:
-        from_secret: harbor_opencloud_password
+      - registry: https://index.docker.io/v1/
+        username:
+          from_secret: docker_username
+        password:
+          from_secret: docker_password
+      - registry: https://quay.io
+        username:
+          from_secret: quay_username
+        password:
+          from_secret: quay_password
+      - registry: https://registry.heinlein.group
+        username:
+          from_secret: harbor_opencloud_user
+        password:
+          from_secret: harbor_opencloud_password
 when:
   - event: [push, manual, cron]
     branch: ${CI_REPO_DEFAULT_BRANCH}
-    path: 'nodejs/v24-alpine/**'
+    path:
+      - 'nodejs/v24-alpine/**'
+      - '.woodpecker/nodejs-alpine-ci.yml'
   - event: pull_request
   - event: tag
 
