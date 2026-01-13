@@ -25,7 +25,7 @@ when:
     branch: ${CI_REPO_DEFAULT_BRANCH}
     path: 'clamav/*'
   - event: pull_request
-  - event: tag
+  - event: [tag,manual,cron]
 
 steps:
   - name: dryrun
@@ -44,16 +44,6 @@ steps:
       tag: pr-${CI_COMMIT_PULL_REQUEST}
     when:
       - event: pull_request
-
-  - name: echo-build-and-push
-    image: alpine:latest
-    commands:
-      - 'echo "Changed Files: $${CI_PIPELINE_FILES}"'
-    when:
-      - branch: ${CI_REPO_DEFAULT_BRANCH}
-        event:
-          - push
-      - event: tag
 
   - name: build-and-push
     image: *buildx_plugin
