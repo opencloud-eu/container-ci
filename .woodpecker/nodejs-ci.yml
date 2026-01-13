@@ -23,9 +23,7 @@ variables:
 when:
   - event: push
     branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      include: ['nodejs/v24/*']
-      exclude: ['.woodpecker/*.yaml']
+    path: 'nodejs/v24/*'
   - event: pull_request
   - event: tag
 
