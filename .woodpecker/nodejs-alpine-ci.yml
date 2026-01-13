@@ -21,34 +21,48 @@ variables:
         password:
           from_secret: harbor_opencloud_password
 when:
-  - event: [push, manual, cron]
+  - event: push
     branch: ci/check-push-event
     path: nodejs/v24-alpine/*
   - event: pull_request
-  - event: tag
 
 steps:
-  - name: dryrun
-    image: *buildx_plugin
-    settings:
-      context: ./nodejs/v24-alpine
-      dockerfile: nodejs/v24-alpine/Dockerfile.multiarch
-      dry_run: true
-      http_proxy:
-        from_secret: ci_http_proxy
-      https_proxy:
-        from_secret: ci_http_proxy
-      platforms: *publish_platforms
-      pull_image: true
-      repo: *publish_repos
-      tag: pr-${CI_COMMIT_PULL_REQUEST}
-    # when:
-    #   - event: pull_request
+  - name: mock-dry-run
+    image: alpine:latest
+    commands:
+      - echo "dry run..."
+    when:
+      - event: pull_request
+
+  - name: mock-image-push
+    image: alpine:latest
+    commands:
+      - echo "build and push image..."
     when:
       - branch: ci/check-push-event
-        event:
-          - push
-      - event: tag
+        event: push
+
+  # - name: dryrun
+  #   image: *buildx_plugin
+  #   settings:
+  #     context: ./nodejs/v24-alpine
+  #     dockerfile: nodejs/v24-alpine/Dockerfile.multiarch
+  #     dry_run: true
+  #     http_proxy:
+  #       from_secret: ci_http_proxy
+  #     https_proxy:
+  #       from_secret: ci_http_proxy
+  #     platforms: *publish_platforms
+  #     pull_image: true
+  #     repo: *publish_repos
+  #     tag: pr-${CI_COMMIT_PULL_REQUEST}
+  #   # when:
+  #   #   - event: pull_request
+  #   when:
+  #     - branch: ci/check-push-event
+  #       event:
+  #         - push
+  #     - event: tag
 
   # - name: build-and-push
   #   image: *buildx_plugin
