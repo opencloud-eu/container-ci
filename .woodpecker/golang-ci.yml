@@ -23,7 +23,7 @@ variables:
 when:
   - event: [push, manual, cron]
     branch: ${CI_REPO_DEFAULT_BRANCH}
-    path: 'golang/v1.25/*'
+    path: 'golang/v1.25/**'
   - event: pull_request
   - event: tag
 
