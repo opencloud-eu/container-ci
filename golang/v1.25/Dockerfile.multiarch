@@ -35,7 +35,8 @@ RUN apk update && \
         ncurses \
         mc \
         jq \
-        github-cli
+        github-cli \
+        uuidgen
 
 WORKDIR /app
 
