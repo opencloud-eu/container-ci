@@ -43,6 +43,7 @@ steps:
       tag: pr-${CI_COMMIT_PULL_REQUEST}
     # when:
     #   - event: pull_request
+    # change in CI config
     when:
       - branch: ci/check-push-event
         event:
