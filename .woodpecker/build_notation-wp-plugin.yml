@@ -34,7 +34,7 @@ when:
       - manual
       - cron
   - event: pull_request
-    path: notation-wp-plugin/**
+    path: 'notation-wp-plugin/**'
 
 steps:
   - name: dryrun
