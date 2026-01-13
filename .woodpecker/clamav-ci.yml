@@ -45,6 +45,16 @@ steps:
     when:
       - event: pull_request
 
+  - name: echo-build-and-push
+    image: alpine:latest
+    commands:
+      - 'echo "Changed Files: $${CI_PIPELINE_FILES}"'
+    when:
+      - branch: ${CI_REPO_DEFAULT_BRANCH}
+        event:
+          - push
+      - event: tag
+
   - name: build-and-push
     image: *buildx_plugin
     settings:
