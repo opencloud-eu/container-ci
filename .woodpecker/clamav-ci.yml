@@ -21,9 +21,9 @@ variables:
         from_secret: harbor_opencloud_password
 
 when:
-  - event: [push, manual, cron]
+  - event: push
     branch: ${CI_REPO_DEFAULT_BRANCH}
-    path: clamav/*
+    path: 'clamav/*'
   - event: pull_request
   - event: tag
 
