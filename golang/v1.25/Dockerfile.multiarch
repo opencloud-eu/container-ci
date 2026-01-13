@@ -36,7 +36,8 @@ RUN apk update && \
         mc \
         jq \
         github-cli \
-        uuidgen
+        uuidgen \
+        openssh-client
 
 WORKDIR /app
 
