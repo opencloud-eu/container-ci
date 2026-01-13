@@ -20,21 +20,10 @@ variables:
         from_secret: harbor_opencloud_user
       password:
         from_secret: harbor_opencloud_password
-
 when:
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      - php/v8.4/**
-    event:
-      - push
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    event:
-      - manual
-      - cron
+  - event: [push, manual, cron]
+    branch: ${CI_REPO_DEFAULT_BRANCH}
   - event: pull_request
-    path:
-      - php/v8.4/**
-  - event: push
 
 steps:
   - name: dryrun
@@ -74,7 +63,6 @@ steps:
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
-          - cron
           - push
-          - manual
+        path: php/v8.4/**
       - event: tag

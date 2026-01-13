@@ -20,27 +20,16 @@ variables:
         from_secret: harbor_opencloud_user
       password:
         from_secret: harbor_opencloud_password
-
 when:
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      - nodejs/v24-alpine/**
-    event:
-      - push
-  - branch: ${CI_REPO_DEFAULT_BRANCH}
-    event:
-      - manual
-      - cron
+  - event: [push, manual, cron]
+    branch: ${CI_REPO_DEFAULT_BRANCH}
   - event: pull_request
-    path:
-      - nodejs/v24-alpine/**
-  - event: push
 
 steps:
   - name: dryrun
     image: *buildx_plugin
     settings:
-      context: ./nodejs-alpine
+      context: ./nodejs/v24-alpine
       dockerfile: nodejs/v24-alpine/Dockerfile.multiarch
       dry_run: true
       http_proxy:
@@ -58,7 +47,7 @@ steps:
     image: *buildx_plugin
     settings:
       auto_tag: true
-      context: ./nodejs
+      context: ./nodejs/v24-alpine
       default_tag: commit-${CI_COMMIT_SHA}
       dockerfile: nodejs/v24-alpine/Dockerfile.multiarch
       http_proxy:
@@ -74,7 +63,6 @@ steps:
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
-          - cron
           - push
-          - manual
+        path: nodejs/v24-alpine/**
       - event: tag
