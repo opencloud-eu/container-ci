@@ -23,7 +23,9 @@ variables:
 when:
   - event: [push, manual, cron]
     branch: ${CI_REPO_DEFAULT_BRANCH}
+    path: golang/v1.25/*
   - event: pull_request
+  - event: tag
 
 steps:
   - name: dryrun
@@ -64,5 +66,4 @@ steps:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
           - push
-        path: golang/v1.25/**
       - event: tag

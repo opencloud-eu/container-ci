@@ -26,8 +26,7 @@ variables:
 
 when:
   - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      - notation-wp-plugin/**
+    path: notation-wp-plugin/**
     event:
       - push
   - branch: ${CI_REPO_DEFAULT_BRANCH}
@@ -35,8 +34,7 @@ when:
       - manual
       - cron
   - event: pull_request
-    path:
-      - notation-wp-plugin/**
+    path: notation-wp-plugin/**
 
 steps:
   - name: dryrun
