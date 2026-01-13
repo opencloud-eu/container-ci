@@ -1,5 +1,6 @@
 FROM docker.io/golang:1.25-alpine3.22
 
+
 LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.title="openCloud CI Go Image" \
   org.opencontainers.image.vendor="openCloud GmbH" \
