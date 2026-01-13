@@ -21,7 +21,7 @@ variables:
       password:
         from_secret: harbor_opencloud_password
 when:
-  - event: [push, manual, cron]
+  - event: push
     branch: ${CI_REPO_DEFAULT_BRANCH}
     path: nodejs/v24/*
   - event: pull_request
