@@ -20,20 +20,28 @@ variables:
           from_secret: harbor_opencloud_user
         password:
           from_secret: harbor_opencloud_password
-when:
-  - event: [push, manual, cron]
-    branch: ${CI_REPO_DEFAULT_BRANCH}
-    path:
-      include:
-        - nodejs/v24/**
-        - .woodpecker/nodejs-ci.yml
-  - event: pull_request
-    path:
+  - path: &path
       include:
         - nodejs/v24/**
         - .woodpecker/nodejs-ci.yml
 
+when:
+  - event:
+      - push
+      # - tag
+    branch: $CI_REPO_DEFAULT_BRANCH
+    path:
+      - nodejs/v24/**
+      - .woodpecker/nodejs-ci.yml
+  # - event: pull_request
+  #   path: *path
+
 steps:
+  - name: test-env
+    image: alpine:latest
+    commands:
+      - echo $CI_REPO_DEFAULT_BRANCH
+
   - name: dryrun
     image: *buildx_plugin
     settings:
@@ -49,26 +57,29 @@ steps:
       repo: *publish_repos
       tag: pr-${CI_COMMIT_PULL_REQUEST}
     when:
-      - event: pull_request
+      # - event: pull_request
+      - event:
+          - push
+          - tag
 
-  - name: build-and-push
-    image: *buildx_plugin
-    settings:
-      auto_tag: true
-      context: ./nodejs/v24
-      default_tag: commit-${CI_COMMIT_SHA}
-      dockerfile: nodejs/v24/Dockerfile.multiarch
-      http_proxy:
-        from_secret: ci_http_proxy
-      https_proxy:
-        from_secret: ci_http_proxy
-      logins: *publish_logins
-      platforms: *publish_platforms
-      repo: *publish_repos
-      tags:
-        - latest
-        - *nodejs_version
-    when:
-      - branch: ${CI_REPO_DEFAULT_BRANCH}
-        event: push
-      - event: tag
+  # - name: build-and-push
+  #   image: *buildx_plugin
+  #   settings:
+  #     auto_tag: true
+  #     context: ./nodejs/v24
+  #     default_tag: commit-${CI_COMMIT_SHA}
+  #     dockerfile: nodejs/v24/Dockerfile.multiarch
+  #     http_proxy:
+  #       from_secret: ci_http_proxy
+  #     https_proxy:
+  #       from_secret: ci_http_proxy
+  #     logins: *publish_logins
+  #     platforms: *publish_platforms
+  #     repo: *publish_repos
+  #     tags:
+  #       - latest
+  #       - *nodejs_version
+  #   when:
+  #     - event:
+  #         - push
+  #         - tag
