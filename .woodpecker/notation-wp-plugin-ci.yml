@@ -2,31 +2,33 @@
 variables:
   - &sign_image registry.heinlein.group/opencloud/notation-wp-plugin:latest
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
-  - &publish_repos "opencloudeu/notation-wp-plugin,quay.io/opencloudeu/notation-wp-plugin,registry.heinlein.group/opencloud/notation-wp-plugin"
+  - &publish_repos 'opencloudeu/notation-wp-plugin,quay.io/opencloudeu/notation-wp-plugin,registry.heinlein.group/opencloud/notation-wp-plugin'
   - &publish_platforms 'linux/arm64,linux/amd64'
   - publish_logins: &publish_logins
-    - registry: https://index.docker.io/v1/
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    - registry: https://quay.io
-      username:
-        from_secret: quay_username
-      password:
-        from_secret: quay_password
-    - registry: https://registry.heinlein.group
-      username:
-        from_secret: harbor_opencloud_user
-      password:
-        from_secret: harbor_opencloud_password
+      - registry: https://index.docker.io/v1/
+        username:
+          from_secret: docker_username
+        password:
+          from_secret: docker_password
+      - registry: https://quay.io
+        username:
+          from_secret: quay_username
+        password:
+          from_secret: quay_password
+      - registry: https://registry.heinlein.group
+        username:
+          from_secret: harbor_opencloud_user
+        password:
+          from_secret: harbor_opencloud_password
   - readme_env: &readme_env
       PUSHRM_FILE: notation-wp-plugin/docs.md
       PUSHRM_SHORT: Woodpecker-CI plugin for Notation
 
 when:
   - branch: ${CI_REPO_DEFAULT_BRANCH}
-    path: notation-wp-plugin/**
+    path:
+      - 'notation-wp-plugin/**'
+      - '.woodpecker/notation-wp-plugin-ci.yml'
     event:
       - push
   - branch: ${CI_REPO_DEFAULT_BRANCH}
@@ -34,7 +36,9 @@ when:
       - manual
       - cron
   - event: pull_request
-    path: 'notation-wp-plugin/**'
+    path:
+      - 'notation-wp-plugin/**'
+      - '.woodpecker/notation-wp-plugin-ci.yml'
 
 steps:
   - name: dryrun
@@ -75,7 +79,6 @@ steps:
           - cron
           - push
           - manual
-        path: notation-wp-plugin/**
       - event: tag
 
   - name: sign
@@ -113,7 +116,7 @@ steps:
         event:
           - push
         path:
-          - notation-wp-plugin/docs.md
+          - 'notation-wp-plugin/docs.md'
 
   - name: readme-quay
     image: chko/docker-pushrm:1
