@@ -13,6 +13,9 @@ LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
   org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci"
 
+RUN apk update && \
+    apk add --no-cache git
+
 COPY --from=0 /go/bin/buildifier /usr/bin/buildifier
 
 ENTRYPOINT ["buildifier"]
