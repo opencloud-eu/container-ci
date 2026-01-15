@@ -1,7 +1,7 @@
 ---
 variables:
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
-  - &publish_repos 'opencloudeu/wopi-validator,quay.io/opencloudeu/wopi-validator'
+  - &publish_repos 'opencloudeu/wopi-validator-ci,quay.io/opencloudeu/wopi-validator-ci'
   - &publish_platforms 'linux/amd64'
   - publish_logins: &publish_logins
       - registry: https://index.docker.io/v1/
