@@ -20,9 +20,11 @@ RUN apk update && \
         ca-certificates \
         build-base \
         attr \
+        imagemagick \
         inotify-tools \
         vips \
         vips-dev \
+        vips-magick \
         vips-tools \
         glib \
         expat \
