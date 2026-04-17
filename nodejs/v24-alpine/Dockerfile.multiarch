@@ -25,6 +25,9 @@ RUN apk update && apk add --no-cache \
 # 2. install pnpm
 RUN npm install -g pnpm@10.26.1
 
+# 3. install minimatch
+RUN npm install -g minimatch
+
 RUN echo "Node: $(node --version)" && echo "pnpm: $(pnpm --version)"
 
 WORKDIR /app
