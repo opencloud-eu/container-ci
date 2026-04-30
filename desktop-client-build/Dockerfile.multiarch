@@ -1,0 +1,161 @@
+ARG BASE_IMAGE=ubuntu
+ARG BASE_TAG=24.04
+
+FROM ${BASE_IMAGE}:${BASE_TAG} AS stage_build
+
+ARG ARG_CLIENT_BRANCH
+ARG ARG_CLIENT_BUILD_TARGET
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV OPENBUILD_DIR=/openbuild \
+    CLIENT_BRANCH=${ARG_CLIENT_BRANCH:-main} \
+    CLIENT_BUILD_TARGET=${ARG_CLIENT_BUILD_TARGET:-linux-gcc-x86_64}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    git \
+    python3 \
+    # to build qtbase
+    build-essential \
+    patch \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    mesa-common-dev \
+    libgles2-mesa-dev \
+    libegl1-mesa-dev \
+    libxcb-shape0-dev \
+    libxcb-xfixes0-dev \
+    libxcb-icccm4-dev \
+    libxcb-keysyms1-dev \
+    libxcb-randr0-dev \
+    libxcb-util-dev \
+    libxkbcommon-x11-dev \
+    libxcb-cursor-dev \
+    libxcb-sync-dev \
+    libatspi2.0-dev \
+    libdbus-1-dev \
+    libfuse3-dev \
+    libvulkan-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+######################################################################
+# Install dependencies using craft                                   #
+######################################################################
+RUN mkdir -p ${OPENBUILD_DIR} && \
+    curl https://raw.githubusercontent.com/opencloud-eu/openbuild/refs/heads/main/openbuild.py -so ${OPENBUILD_DIR}/openbuild.py && \
+    python3 ${OPENBUILD_DIR}/openbuild.py \
+    --branch ${CLIENT_BRANCH} \
+    --target ${CLIENT_BUILD_TARGET} \
+    -- \
+    --install-deps opencloud-desktop
+
+COPY ["./scripts/clean-openbuild.sh", "/"]
+
+RUN cd ${OPENBUILD_DIR}/${CLIENT_BRANCH}/${CLIENT_BUILD_TARGET} \
+    && bash /clean-openbuild.sh
+
+FROM ${BASE_IMAGE}:${BASE_TAG} AS stage_xfce
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dbus-x11 \
+    xauth \
+    xinit \
+    x11-xserver-utils \
+    xdg-utils \
+    libxshmfence1 \
+    libxcvt0 \
+    libgbm1 \
+    xfce4 \
+    xfce4-terminal \
+    elementary-xfce-icon-theme \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM stage_xfce AS stage_tools
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    ### To build desktop client
+    build-essential \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    cmake \
+    ninja-build \
+    ### To run desktop client
+    libxcb-cursor0 \
+    libxcb-icccm4-dev \
+    libxcb-keysyms1-dev \
+    libxcb-shape0-dev \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0 \
+    ### For GUI test
+    python3-venv \
+    python3-nautilus \
+    xclip \
+    # browser dependencies
+    libnspr4 \
+    libnss3 \
+    libasound2t64 \
+    # at-spi webdriver
+    gir1.2-gtk-3.0 \
+    python3-pyatspi \
+    # to build PyGObject
+    libgirepository1.0-dev \
+    libcairo2-dev \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM stage_tools AS stage_vnc
+
+RUN curl -sL https://onboardcloud.dl.sourceforge.net/project/tigervnc/stable/1.16.2/tigervnc-1.16.2.x86_64.tar.gz \
+    | tar -xz --strip 1 -C / \
+    && ln -s /usr/libexec/vncserver /usr/bin/vncserver
+
+FROM stage_vnc AS stage_final
+
+ARG ARG_CLIENT_BRANCH
+ARG ARG_CLIENT_BUILD_TARGET
+
+ENV CLIENT_BRANCH=${ARG_CLIENT_BRANCH:-main} \
+    CLIENT_BUILD_TARGET=${ARG_CLIENT_BUILD_TARGET:-linux-gcc-x86_64}
+ENV OPENBUILD_BIN_PATH=/openbuild/${CLIENT_BRANCH}/${CLIENT_BUILD_TARGET}
+
+COPY --from=stage_build ${OPENBUILD_BIN_PATH} ${OPENBUILD_BIN_PATH}
+
+ENV CMAKE_PREFIX_PATH=${OPENBUILD_BIN_PATH}
+
+ENV HOME="/home/ubuntu" \
+    STARTUPDIR="/dockerstartup" \
+    DISPLAY=:1 \
+    FEATURES_VNC=1 \
+    VNC_COL_DEPTH="24" \
+    VNC_PORT="5901" \
+    VNC_PW="secret" \
+    VNC_RESOLUTION="1360x768"
+
+COPY ["./xfce/startup", "${STARTUPDIR}/"]
+COPY ["./xfce/home/config", "${HOME}/.config/"]
+COPY ["./xfce/home/Desktop", "${HOME}/Desktop/"]
+
+RUN echo "ubuntu:${VNC_PW}" | chpasswd \
+    && chmod +x \
+    "${STARTUPDIR}/vnc_startup.sh" \
+    "${STARTUPDIR}/entrypoint.sh" \
+    "${STARTUPDIR}/set_user_permissions.sh" \
+    && "${STARTUPDIR}/set_user_permissions.sh" "${STARTUPDIR}" "${HOME}"
+
+EXPOSE ${VNC_PORT}
+
+ENV USER=ubuntu
+USER 1000
+WORKDIR ${HOME}
+
+ENTRYPOINT [ "/dockerstartup/entrypoint.sh" ]
