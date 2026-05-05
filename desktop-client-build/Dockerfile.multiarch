@@ -99,6 +99,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     python3-nautilus \
     xclip \
+    gnome-keyring \
     # browser dependencies
     libnspr4 \
     libnss3 \
@@ -154,7 +155,13 @@ RUN echo "ubuntu:${VNC_PW}" | chpasswd \
 
 EXPOSE ${VNC_PORT}
 
-ENV USER=ubuntu
+ENV USER=ubuntu\
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    FONTCONFIG_FILE=/etc/fonts/fonts.conf \
+    # force CPU rendering
+    LIBGL_ALWAYS_SOFTWARE=1
+
 USER 1000
 WORKDIR ${HOME}
 
