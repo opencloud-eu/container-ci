@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#set -e     ### do not use this
-
 declare _thisdir=$(dirname $0)
 
 source "${_thisdir}"/vnc_startup.sh

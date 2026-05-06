@@ -1,7 +1,6 @@
 #!/bin/bash
 ### every exit != 0 fails the script
 set -e
-#set -u     # do not use
 
 [[ -n $DEBUG ]] && _verbose="-v" || _verbose=""
 
