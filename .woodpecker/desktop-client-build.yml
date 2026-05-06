@@ -9,11 +9,12 @@ variables:
           from_secret: docker_username
         password:
           from_secret: docker_password
-      - registry: https://quay.io
-        username:
-          from_secret: quay_username
-        password:
-          from_secret: quay_password
+      # TODO: Enable quay registry once the repo is available
+      # - registry: https://quay.io
+      #   username:
+      #     from_secret: quay_username
+      #   password:
+      #     from_secret: quay_password
       - registry: https://registry.heinlein.group
         username:
           from_secret: harbor_opencloud_user
