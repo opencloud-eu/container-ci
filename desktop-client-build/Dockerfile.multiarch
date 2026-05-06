@@ -144,7 +144,6 @@ ENV HOME="/home/ubuntu" \
 
 COPY ["./xfce/startup", "${STARTUPDIR}/"]
 COPY ["./xfce/home/config", "${HOME}/.config/"]
-COPY ["./xfce/home/Desktop", "${HOME}/Desktop/"]
 
 RUN echo "ubuntu:${VNC_PW}" | chpasswd \
     && chmod +x \
