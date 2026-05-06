@@ -1,0 +1,78 @@
+---
+variables:
+  - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
+  - &publish_repos 'opencloudeu/desktop-client-build,quay.io/opencloudeu/desktop-client-build'
+  - &publish_platforms 'linux/amd64'
+  - publish_logins: &publish_logins
+      - registry: https://index.docker.io/v1/
+        username:
+          from_secret: docker_username
+        password:
+          from_secret: docker_password
+      - registry: https://quay.io
+        username:
+          from_secret: quay_username
+        password:
+          from_secret: quay_password
+      - registry: https://registry.heinlein.group
+        username:
+          from_secret: harbor_opencloud_user
+        password:
+          from_secret: harbor_opencloud_password
+  - image_tags: &image_tags
+      - latest
+      - ubuntu-qt6.10
+      - ubuntu-24.04-qt6.10
+when:
+  - event: [push, manual, cron]
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+    path:
+      - 'desktop-client-build/**'
+      - '.woodpecker/desktop-client-build.yml'
+  - event: pull_request
+  - event: tag
+
+steps:
+  - name: dryrun
+    image: *buildx_plugin
+    settings:
+      context: ./desktop-client-build
+      dockerfile: desktop-client-build/Dockerfile.multiarch
+      dry_run: true
+      http_proxy:
+        from_secret: ci_http_proxy
+      https_proxy:
+        from_secret: ci_http_proxy
+      platforms: *publish_platforms
+      pull_image: true
+      repo: *publish_repos
+      tags: *image_tags
+      build_args:
+        # remove the following once PR https://github.com/opencloud-eu/desktop/pull/863 is merged
+        ARG_CLIENT_BRANCH: 'build/build-qtbase-with-a11y'
+    when:
+      - event: pull_request
+
+  - name: build-and-push
+    image: *buildx_plugin
+    settings:
+      auto_tag: true
+      context: ./desktop-client-build
+      default_tag: commit-${CI_COMMIT_SHA}
+      dockerfile: desktop-client-build/Dockerfile.multiarch
+      http_proxy:
+        from_secret: ci_http_proxy
+      https_proxy:
+        from_secret: ci_http_proxy
+      logins: *publish_logins
+      platforms: *publish_platforms
+      repo: *publish_repos
+      tags: *image_tags
+      build_args:
+        # remove the following once PR https://github.com/opencloud-eu/desktop/pull/863 is merged
+        ARG_CLIENT_BRANCH: 'build/build-qtbase-with-a11y'
+    when:
+      - branch: ${CI_REPO_DEFAULT_BRANCH}
+        event:
+          - push
+      - event: tag
