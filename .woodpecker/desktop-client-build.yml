@@ -1,7 +1,9 @@
 ---
 variables:
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
-  - &publish_repos 'opencloudeu/desktop-client-build,quay.io/opencloudeu/desktop-client-build'
+  # TODO: Enable quay registry once the repo is available
+  # - &publish_repos 'opencloudeu/desktop-client-build,quay.io/opencloudeu/desktop-client-build'
+  - &publish_repos 'opencloudeu/desktop-client-build'
   - &publish_platforms 'linux/amd64'
   - publish_logins: &publish_logins
       - registry: https://index.docker.io/v1/
@@ -9,12 +11,11 @@ variables:
           from_secret: docker_username
         password:
           from_secret: docker_password
-      # TODO: Enable quay registry once the repo is available
-      # - registry: https://quay.io
-      #   username:
-      #     from_secret: quay_username
-      #   password:
-      #     from_secret: quay_password
+      - registry: https://quay.io
+        username:
+          from_secret: quay_username
+        password:
+          from_secret: quay_password
       - registry: https://registry.heinlein.group
         username:
           from_secret: harbor_opencloud_user
