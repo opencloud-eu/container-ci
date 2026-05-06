@@ -43,9 +43,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ######################################################################
 # Install dependencies using craft                                   #
 ######################################################################
-RUN mkdir -p ${OPENBUILD_DIR} && \
-    curl https://raw.githubusercontent.com/opencloud-eu/openbuild/refs/heads/main/openbuild.py -so ${OPENBUILD_DIR}/openbuild.py && \
-    python3 ${OPENBUILD_DIR}/openbuild.py \
+RUN mkdir -p ${OPENBUILD_DIR} \
+    && curl https://raw.githubusercontent.com/opencloud-eu/openbuild/refs/heads/main/openbuild.py -so ${OPENBUILD_DIR}/openbuild.py \
+    && python3 ${OPENBUILD_DIR}/openbuild.py \
     --branch ${CLIENT_BRANCH} \
     --target ${CLIENT_BUILD_TARGET} \
     -- \
