@@ -96,6 +96,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcb-xkb1 \
     libxkbcommon-x11-0 \
     ### For GUI test
+    python3-tk \
     python3-venv \
     python3-nautilus \
     xclip \
