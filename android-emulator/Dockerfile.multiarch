@@ -1,0 +1,57 @@
+FROM eclipse-temurin:25-jdk-jammy
+
+LABEL maintainer="openCloud Team team@opencloud.eu" \
+  org.opencontainers.image.title="openCloud CI android emulator Image" \
+  org.opencontainers.image.vendor="openCloud GmbH" \
+  org.opencontainers.image.authors="openCloud GmbH" \
+  org.opencontainers.image.description="Custom Android emulator image for CI" \
+  org.opencontainers.image.documentation="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.version="1.0.0"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Runtime deps — no VNC / GUI / virt-manager
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      curl wget unzip socat iproute2 \
+      libdrm2 libxkbcommon0 libgbm1 libasound2 \
+      libnss3 libxcursor1 libpulse0 libxshmfence1 \
+      libgl1 libvulkan1 qemu-kvm \
+   && rm -rf /var/lib/apt/lists/*
+
+ARG API_LEVEL=36
+ARG IMG_TYPE=default
+ARG ARCHITECTURE=x86_64
+ARG DEVICE_ID=pixel
+ARG CMD_LINE_VERSION=11076708_latest
+
+ENV ANDROID_SDK_ROOT=/opt/android \
+    API_LEVEL=${API_LEVEL} \
+    IMG_TYPE=${IMG_TYPE} \
+    ARCHITECTURE=${ARCHITECTURE} \
+    DEVICE_ID=${DEVICE_ID} \
+    ANDROID_AVD_HOME=/data \
+    QTWEBENGINE_DISABLE_SANDBOX=1
+
+ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/emulator:${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
+ENV LD_LIBRARY_PATH="${ANDROID_SDK_ROOT}/emulator/lib64:${ANDROID_SDK_ROOT}/emulator/lib64/qt/lib"
+
+RUN set -eu \
+ && wget -q "https://dl.google.com/android/repository/commandlinetools-linux-${CMD_LINE_VERSION}.zip" -O /tmp/cmdline-tools.zip \
+ && mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools" \
+ && unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools" \
+ && mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/tools" \
+ && rm /tmp/cmdline-tools.zip \
+ && yes | sdkmanager --licenses > /dev/null 2>&1 || true \
+ && sdkmanager "platform-tools" "emulator" \
+ && sdkmanager "system-images;android-${API_LEVEL};${IMG_TYPE};${ARCHITECTURE}"
+
+RUN mkdir -p /data /root/.android && touch /root/.android/repositories.cfg
+
+COPY start.sh /opt/start.sh
+RUN chmod +x /opt/start.sh
+
+EXPOSE 5555
+
+ENTRYPOINT ["/opt/start.sh"]
