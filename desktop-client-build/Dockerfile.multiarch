@@ -101,6 +101,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-nautilus \
     xclip \
     gnome-keyring \
+    # capture screenshot
+    gnome-screenshot \
     # browser dependencies
     libnspr4 \
     libnss3 \

@@ -60,4 +60,5 @@ find ./bin \( -type f -o -type l \) \
     ! -name "qmltime" \
     ! -name "qtpaths" \
     ! -name "svgtoqml" \
+    ! -name "openvfs" \
     -delete
