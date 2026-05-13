@@ -1,4 +1,4 @@
-FROM php:8.4.15-alpine3.22
+FROM php:8.4.15-alpine3.23
 
 LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.title="openCloud CI PHP Image" \
