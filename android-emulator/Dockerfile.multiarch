@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25-jdk-jammy
+FROM nvidia/cuda:13.2.1-base-ubuntu24.04
 
 LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.title="openCloud CI android emulator Image" \
@@ -9,58 +9,72 @@ LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
   org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
   org.opencontainers.image.version="1.0.0" \
+  org.opencontainers.image.licenses="MIT" \
+  org.opencontainers.image.base.name="github.com/HQarroum/docker-android" \
   android.api.level="36" \
   android.version="16"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      curl wget unzip socat iproute2 \
-      libdrm2 libxkbcommon0 libgbm1 libasound2 \
-      libnss3 libxcursor1 libpulse0 libxshmfence1 \
-      libgl1-mesa-glx \
-      libgl1-mesa-dri \
-      libvulkan1 \
-      mesa-utils \
-      xvfb \
-      qemu-kvm \
-   && rm -rf /var/lib/apt/lists/*
+RUN apt update -y && \
+    apt install -y --no-install-recommends \
+    bash \
+    unzip \
+    wget \
+    libvirt-daemon \
+    dbus \
+    openjdk-21-jre-headless \
+    virt-manager \
+    libvulkan1 \
+    xvfb \
+    libgl1-mesa-dri \
+    socat \
+    htop \
+    iproute2 && \
+    rm -rf /var/lib/apt/lists/*
 
 ARG API_LEVEL=36
 ARG IMG_TYPE=default
 ARG ARCHITECTURE=x86_64
 ARG DEVICE_ID=pixel
 ARG CMD_LINE_VERSION=11076708_latest
-ARG GPU_ACCELERATED=false
+ARG GPU_ACCELERATED=true
+ARG INSTALL_ANDROID_SDK=1
 
 ENV ANDROID_SDK_ROOT=/opt/android \
-    API_LEVEL=${API_LEVEL} \
-    IMG_TYPE=${IMG_TYPE} \
-    ARCHITECTURE=${ARCHITECTURE} \
-    DEVICE_ID=${DEVICE_ID} \
-    GPU_ACCELERATED=${GPU_ACCELERATED} \
-    ANDROID_AVD_HOME=/data \
+    ANDROID_PLATFORM_VERSION="platforms;android-$API_LEVEL" \
+    PACKAGE_PATH="system-images;android-${API_LEVEL};${IMG_TYPE};${ARCHITECTURE}" \
+    API_LEVEL=$API_LEVEL \
+    DEVICE_ID=$DEVICE_ID \
+    ARCHITECTURE=$ARCHITECTURE \
+    ABI=${IMG_TYPE}/${ARCHITECTURE} \
+    GPU_ACCELERATED=$GPU_ACCELERATED \
     QTWEBENGINE_DISABLE_SANDBOX=1 \
-    DISPLAY=:0
+    ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=10 \
+    ANDROID_AVD_HOME=/data
 
-ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/emulator:${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
-ENV LD_LIBRARY_PATH="${ANDROID_SDK_ROOT}/emulator/lib64:${ANDROID_SDK_ROOT}/emulator/lib64/qt/lib"
+# Exporting environment variables for keeping in the path
+# Android SDK binaries and shared libraries.
+ENV PATH "${PATH}:${ANDROID_SDK_ROOT}/platform-tools"
+ENV PATH "${PATH}:${ANDROID_SDK_ROOT}/emulator"
+ENV PATH "${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
+ENV LD_LIBRARY_PATH "$ANDROID_SDK_ROOT/emulator/lib64:$ANDROID_SDK_ROOT/emulator/lib64/qt/lib"
 
-RUN set -eu \
- && wget -q "https://dl.google.com/android/repository/commandlinetools-linux-${CMD_LINE_VERSION}.zip" -O /tmp/cmdline-tools.zip \
- && mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools" \
- && unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools" \
- && mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/tools" \
- && rm /tmp/cmdline-tools.zip \
- && yes | sdkmanager --licenses > /dev/null 2>&1 || true \
- && sdkmanager "platform-tools" "emulator" \
- && sdkmanager "system-images;android-${API_LEVEL};${IMG_TYPE};${ARCHITECTURE}"
+# Set the working directory to /opt
+WORKDIR /opt
 
-RUN mkdir -p /data /root/.android && touch /root/.android/repositories.cfg
+# Exposing the Android emulator console port
+# and the ADB port.
+EXPOSE 5554 5555
 
-COPY start.sh /opt/start.sh
-RUN chmod +x /opt/start.sh
+# Initializing the required directories.
+RUN mkdir /root/.android/ && \
+  touch /root/.android/repositories.cfg && \
+  mkdir /data
 
-EXPOSE 5555
-
-ENTRYPOINT ["/opt/start.sh"]
+# The following layers will download the Android command-line tools
+# to install the Android SDK, emulator and system images.
+# It will then install the Android SDK and emulator.
+COPY install-sdk.sh /opt/
+RUN chmod +x /opt/install-sdk.sh
+RUN /opt/install-sdk.sh
