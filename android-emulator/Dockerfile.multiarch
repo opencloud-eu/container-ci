@@ -55,10 +55,10 @@ ENV ANDROID_SDK_ROOT=/opt/android \
 
 # Exporting environment variables for keeping in the path
 # Android SDK binaries and shared libraries.
-ENV PATH "${PATH}:${ANDROID_SDK_ROOT}/platform-tools"
-ENV PATH "${PATH}:${ANDROID_SDK_ROOT}/emulator"
-ENV PATH "${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
-ENV LD_LIBRARY_PATH "$ANDROID_SDK_ROOT/emulator/lib64:$ANDROID_SDK_ROOT/emulator/lib64/qt/lib"
+ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools"
+ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/emulator"
+ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
+ENV LD_LIBRARY_PATH="$ANDROID_SDK_ROOT/emulator/lib64:$ANDROID_SDK_ROOT/emulator/lib64/qt/lib"
 
 # Set the working directory to /opt
 WORKDIR /opt

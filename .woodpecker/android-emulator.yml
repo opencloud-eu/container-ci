@@ -49,6 +49,7 @@ steps:
   - name: build-and-push
     image: *buildx_plugin
     settings:
+      debug: true
       auto_tag: true
       context: ./android-emulator
       default_tag: commit-${CI_COMMIT_SHA}
