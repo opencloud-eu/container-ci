@@ -75,6 +75,13 @@ RUN mkdir /root/.android/ && \
 # The following layers will download the Android command-line tools
 # to install the Android SDK, emulator and system images.
 # It will then install the Android SDK and emulator.
-COPY install-sdk.sh /opt/
+COPY scripts/install-sdk.sh /opt/
 RUN chmod +x /opt/install-sdk.sh
 RUN /opt/install-sdk.sh
+
+# Copy the container scripts in the image.
+COPY scripts/start-emulator.sh /opt/
+COPY scripts/emulator-monitoring.sh /opt/
+RUN chmod +x /opt/*.sh
+# Set the entrypoint
+ENTRYPOINT ["/opt/start-emulator.sh"]
