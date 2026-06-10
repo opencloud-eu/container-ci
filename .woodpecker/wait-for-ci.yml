@@ -20,9 +20,6 @@ variables:
         password:
           from_secret: harbor_opencloud_password
 
-labels:
-  platform: android-emulator
-
 when:
   - event: [push, manual, cron]
     branch: ${CI_REPO_DEFAULT_BRANCH}
