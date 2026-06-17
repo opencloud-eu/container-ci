@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.25-alpine3.23 AS builder
+FROM docker.io/golang:1.25-alpine3.24 AS builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY go.mod main.go ./
 
 RUN go build -o wait-for .
 
-FROM alpine:3.23
+FROM alpine:3.24
 
 LABEL maintainer="openCloud Team team@opencloud.eu" \
   org.opencontainers.image.description="Custom wait-for container" \
