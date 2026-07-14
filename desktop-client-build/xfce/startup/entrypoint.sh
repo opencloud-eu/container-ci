@@ -76,4 +76,4 @@ fi
 echo ""
 echo "#############################[ GUI Tests ]#############################"
 echo "[INFO] Run GUI tests: behave ${BEHAVE_PARAMETERS}"
-behave ${BEHAVE_PARAMETERS}
+uv run behave ${BEHAVE_PARAMETERS}

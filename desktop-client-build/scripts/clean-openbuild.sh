@@ -61,4 +61,10 @@ find ./bin \( -type f -o -type l \) \
     ! -name "qtpaths" \
     ! -name "svgtoqml" \
     ! -name "openvfs" \
+    ! -name "wasmdeployqt" \
+    ! -name "qmlcontextpropertydump" \
+    ! -name "lcheck" \
+    ! -name "lrelease-pro" \
+    ! -name "lupdate-pro" \
+    ! -name "ltext2id" \
     -delete
