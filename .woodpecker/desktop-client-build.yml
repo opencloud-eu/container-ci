@@ -67,9 +67,6 @@ steps:
       platforms: *publish_platforms
       repo: *publish_repos
       tags: *image_tags
-      build_args:
-        # remove the following once PR https://github.com/opencloud-eu/desktop/pull/863 is merged
-        ARG_CLIENT_BRANCH: 'build/build-qtbase-with-a11y'
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
