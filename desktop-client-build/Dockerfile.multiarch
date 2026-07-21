@@ -1,8 +1,6 @@
 ARG BASE_IMAGE=ubuntu
 ARG BASE_TAG=24.04
 
-FROM ${BASE_IMAGE}:26.04 AS stage_libs
-
 FROM ${BASE_IMAGE}:${BASE_TAG} AS stage_build
 
 ARG ARG_CLIENT_BRANCH
@@ -41,11 +39,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libvulkan-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-COPY --from=stage_libs /usr/lib/x86_64-linux-gnu/libmount.so* /usr/local/lib/
-COPY --from=stage_libs /usr/lib/x86_64-linux-gnu/libblkid.so* /usr/local/lib/
-
-RUN ldconfig
 
 ######################################################################
 # Install dependencies using craft                                   #
@@ -139,15 +132,12 @@ ENV CLIENT_BRANCH=${ARG_CLIENT_BRANCH:-main} \
 ENV OPENBUILD_BIN_PATH=/openbuild/${CLIENT_BRANCH}/${CLIENT_BUILD_TARGET}
 
 COPY --from=stage_build ${OPENBUILD_BIN_PATH} ${OPENBUILD_BIN_PATH}
-COPY --from=stage_libs /usr/lib/x86_64-linux-gnu/libmount.so* /usr/local/lib/
-COPY --from=stage_libs /usr/lib/x86_64-linux-gnu/libblkid.so* /usr/local/lib/
 
 ENV CMAKE_PREFIX_PATH=${OPENBUILD_BIN_PATH}
 
 # install uv - python package manager
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && mv $HOME/.local/bin/uv* /usr/local/bin/ \
-    && ldconfig
+    && mv $HOME/.local/bin/uv* /usr/local/bin/
 
 ENV HOME="/home/ubuntu" \
     STARTUPDIR="/dockerstartup" \
