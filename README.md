@@ -7,6 +7,7 @@ A collection of Docker images used in CI/CD pipelines for the [OpenCloud](https:
 | Image | Description |
 |---|---|
 | `golang/v1.25` | Go build environment |
+| `golang/v1.26` | Go build environment |
 | `nodejs` | Node.js build environment |
 | `php/v8.4` | PHP build environment |
 | `clamav` | ClamAV antivirus scanner |
