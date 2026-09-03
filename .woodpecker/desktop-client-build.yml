@@ -25,6 +25,24 @@ variables:
       - latest
       - ubuntu-qt6.10
       - ubuntu-24.04-qt6.10
+  # Craft clones several repositories from github.com during the build. Anonymous
+  # clones are rate limited per IP and rejected with HTTP 401 once exhausted, so
+  # the build authenticates with a token, consumed by
+  # desktop-client-build/scripts/with-github-auth.sh as BuildKit secret GITHUB_TOKEN.
+  #
+  # The token is passed as a plugin *setting* (which the plugin exposes to the
+  # build as the env var PLUGIN_GITHUB_TOKEN), not via `environment`: a step with
+  # `environment` no longer counts as a plugin for Woodpecker and loses the
+  # privileges the nested docker daemon needs. The `\,` in the secrets entry is
+  # the plugin's escape for a literal comma, so it becomes a single
+  # `--secret id=GITHUB_TOKEN,env=PLUGIN_GITHUB_TOKEN` for docker buildx.
+  #
+  # The Woodpecker secret `github_public_readonly_token` must be enabled for
+  # pull_request events for the dryrun step.
+  - github_token: &github_token
+      from_secret: github_public_readonly_token
+  - build_secrets: &build_secrets
+      - 'id=GITHUB_TOKEN\,env=PLUGIN_GITHUB_TOKEN'
 when:
   - event: [push, manual, cron]
     branch: ${CI_REPO_DEFAULT_BRANCH}
@@ -41,6 +59,7 @@ steps:
       context: ./desktop-client-build
       dockerfile: desktop-client-build/Dockerfile.multiarch
       dry_run: true
+      github_token: *github_token
       http_proxy:
         from_secret: ci_http_proxy
       https_proxy:
@@ -48,6 +67,7 @@ steps:
       platforms: *publish_platforms
       pull_image: true
       repo: *publish_repos
+      secrets: *build_secrets
       tags: *image_tags
     when:
       - event: pull_request
@@ -59,6 +79,7 @@ steps:
       context: ./desktop-client-build
       default_tag: commit-${CI_COMMIT_SHA}
       dockerfile: desktop-client-build/Dockerfile.multiarch
+      github_token: *github_token
       http_proxy:
         from_secret: ci_http_proxy
       https_proxy:
@@ -66,6 +87,7 @@ steps:
       logins: *publish_logins
       platforms: *publish_platforms
       repo: *publish_repos
+      secrets: *build_secrets
       tags: *image_tags
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}

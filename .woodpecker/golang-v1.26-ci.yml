@@ -1,7 +1,7 @@
 ---
 variables:
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
-  - &golang_version '1.25'
+  - &golang_version '1.26'
   - &publish_repos 'opencloudeu/golang-ci,quay.io/opencloudeu/golang-ci'
   - &publish_platforms 'linux/arm64,linux/amd64'
   - publish_logins: &publish_logins
@@ -24,8 +24,8 @@ when:
   - event: [push, manual, cron]
     branch: ${CI_REPO_DEFAULT_BRANCH}
     path:
-      - 'golang/v1.25/**'
-      - '.woodpecker/golang-ci.yml'
+      - 'golang/v1.26/**'
+      - '.woodpecker/golang-v1.26-ci.yml'
   - event: pull_request
   - event: tag
 
@@ -34,7 +34,7 @@ steps:
     image: *buildx_plugin
     settings:
       context: ./golang
-      dockerfile: golang/v1.25/Dockerfile.multiarch
+      dockerfile: golang/v1.26/Dockerfile.multiarch
       dry_run: true
       http_proxy:
         from_secret: ci_http_proxy
@@ -53,7 +53,7 @@ steps:
       auto_tag: true
       context: ./golang
       default_tag: commit-${CI_COMMIT_SHA}
-      dockerfile: golang/v1.25/Dockerfile.multiarch
+      dockerfile: golang/v1.26/Dockerfile.multiarch
       http_proxy:
         from_secret: ci_http_proxy
       https_proxy:
@@ -62,6 +62,7 @@ steps:
       platforms: *publish_platforms
       repo: *publish_repos
       tags:
+        - latest
         - *golang_version
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}

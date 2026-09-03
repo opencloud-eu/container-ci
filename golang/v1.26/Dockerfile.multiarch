@@ -1,0 +1,48 @@
+FROM docker.io/golang:1.26-alpine3.24
+
+LABEL maintainer="openCloud Team team@opencloud.eu" \
+  org.opencontainers.image.title="openCloud CI Go Image" \
+  org.opencontainers.image.vendor="openCloud GmbH" \
+  org.opencontainers.image.authors="openCloud GmbH" \
+  org.opencontainers.image.description="Custom Go image for CI" \
+  org.opencontainers.image.documentation="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.url="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.source="https://github.com/opencloud-eu/container-ci" \
+  org.opencontainers.image.version="1.26"
+
+RUN apk update && \
+    apk add --no-cache \
+        bash \
+        curl \
+        git \
+        grep \
+        make \
+        ca-certificates \
+        build-base \
+        attr \
+        imagemagick \
+        inotify-tools \
+        vips \
+        vips-dev \
+        vips-magick \
+        vips-tools \
+        glib \
+        expat \
+        librsvg \
+        libwebp \
+        libjpeg-turbo \
+        libpng \
+        giflib \
+        tiff \
+        ncurses \
+        mc \
+        jq \
+        github-cli \
+        uuidgen \
+        openssh-client
+
+WORKDIR /app
+
+RUN go version && vips --version
+
+CMD ["/bin/bash"]
