@@ -61,6 +61,8 @@ steps:
       logins: *publish_logins
       platforms: *publish_platforms
       repo: *publish_repos
+      tags:
+        - "1.0"
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
