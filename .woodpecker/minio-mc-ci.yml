@@ -2,7 +2,7 @@
 variables:
   - &buildx_plugin 'docker.io/woodpeckerci/plugin-docker-buildx:latest'
   - &publish_repos 'opencloudeu/minio-mc-ci,quay.io/opencloudeu/minio-mc-ci'
-  - &publish_platforms 'linux/arm64,linux/amd64'
+  - &publish_platforms 'linux/amd64'
   - publish_logins: &publish_logins
       - registry: https://index.docker.io/v1/
         username:
@@ -62,7 +62,7 @@ steps:
       platforms: *publish_platforms
       repo: *publish_repos
       tags:
-        - "1.0"
+        - "1.1"
     when:
       - branch: ${CI_REPO_DEFAULT_BRANCH}
         event:
