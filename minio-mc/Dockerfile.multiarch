@@ -1,4 +1,6 @@
-FROM quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z AS upstream
+FROM docker.io/golang:1.26-alpine3.24 AS builder
+
+RUN CGO_ENABLED=0 go install github.com/minio/mc@RELEASE.2025-08-13T08-35-41Z
 
 FROM alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
 
@@ -13,7 +15,7 @@ LABEL maintainer="openCloud Team team@opencloud.eu" \
 
 RUN apk add --update --no-cache bash ca-certificates curl zip
 
-COPY --from=upstream /usr/bin/mc /usr/bin/mc
+COPY --from=builder /go/bin/mc /usr/bin/mc
 
 RUN mc --version
 
