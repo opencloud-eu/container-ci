@@ -27,7 +27,7 @@ when:
       - 'clamav/**'
       - '.woodpecker/clamav-ci.yml'
   - event: pull_request
-  - event: [tag, manual, cron]
+  - event: [tag, manual]
 
 steps:
   - name: dryrun

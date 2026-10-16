@@ -44,7 +44,7 @@ variables:
   - build_secrets: &build_secrets
       - 'id=GITHUB_TOKEN\,env=PLUGIN_GITHUB_TOKEN'
 when:
-  - event: [push, manual, cron]
+  - event: [push, manual]
     branch: ${CI_REPO_DEFAULT_BRANCH}
     path:
       - 'desktop-client-build/**'
