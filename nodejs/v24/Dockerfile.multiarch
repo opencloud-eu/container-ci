@@ -30,7 +30,9 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # install playwright dependencies without browsers
-RUN npx -y playwright@1.57.0 install-deps
+# renovate: datasource=npm depName=playwright
+ARG PLAYWRIGHT_VERSION=1.57.0
+RUN npx -y playwright@${PLAYWRIGHT_VERSION} install-deps
 
 RUN node --version && pnpm --version
 
